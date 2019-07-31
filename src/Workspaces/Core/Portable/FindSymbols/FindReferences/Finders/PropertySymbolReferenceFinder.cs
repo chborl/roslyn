@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Extensions;
 using Microsoft.CodeAnalysis.LanguageServices;
 using Microsoft.CodeAnalysis.PooledObjects;
 using Microsoft.CodeAnalysis.Shared.Extensions;
@@ -173,8 +174,10 @@ namespace Microsoft.CodeAnalysis.FindSymbols.Finders
 
                     var location = argumentList.SyntaxTree.GetLocation(new TextSpan(argumentList.SpanStart, 0));
                     var symbolUsageInfo = GetSymbolUsageInfo(node, semanticModel, syntaxFacts, semanticFacts, cancellationToken);
+                    var containingTypeInfo = GetContainingTypeInfo(node, syntaxFacts);
+                    var containingMemberInfo = GetContainingMemberInfo(node, syntaxFacts);
                     locations.Add(new FinderLocation(
-                        node, new ReferenceLocation(document, null, location, isImplicit: false, symbolUsageInfo, candidateReason: reason)));
+                        node, new ReferenceLocation(document, null, location, isImplicit: false, symbolUsageInfo, containingTypeInfo, containingMemberInfo, candidateReason: reason)));
                 }
             }
 
@@ -212,8 +215,10 @@ namespace Microsoft.CodeAnalysis.FindSymbols.Finders
                 {
                     var location = node.SyntaxTree.GetLocation(new TextSpan(node.SpanStart, 0));
                     var symbolUsageInfo = GetSymbolUsageInfo(node, semanticModel, syntaxFacts, semanticFacts, cancellationToken);
+                    var containingTypeInfo = GetContainingTypeInfo(node, syntaxFacts);
+                    var containingMemberInfo = GetContainingMemberInfo(node, syntaxFacts);
                     locations.Add(new FinderLocation(
-                        node, new ReferenceLocation(document, null, location, isImplicit: false, symbolUsageInfo, candidateReason: match.reason)));
+                        node, new ReferenceLocation(document, null, location, isImplicit: false, symbolUsageInfo, containingTypeInfo, containingMemberInfo, candidateReason: match.reason)));
                 }
             }
 

@@ -16,6 +16,7 @@ using Microsoft.VisualStudio.Shell.FindAllReferences;
 using Microsoft.VisualStudio.Shell.TableControl;
 using Microsoft.VisualStudio.Text.Classification;
 using EnvDTE;
+using Microsoft.VisualStudio.LanguageServices.ContainingType;
 
 namespace Microsoft.VisualStudio.LanguageServices.FindUsages
 {
@@ -40,7 +41,7 @@ namespace Microsoft.VisualStudio.LanguageServices.FindUsages
 
         private readonly HashSet<AbstractTableDataSourceFindUsagesContext> _currentContexts =
             new HashSet<AbstractTableDataSourceFindUsagesContext>();
-        private readonly ImmutableArray<AbstractFindUsagesCustomColumnDefinition> _customColumns;
+        private readonly ImmutableArray<AbstractCustomColumnDefinition> _customColumns;
 
         [ImportingConstructor]
         [Obsolete(MefConstruction.ImportingConstructorMessage, error: true)]
@@ -58,7 +59,10 @@ namespace Microsoft.VisualStudio.LanguageServices.FindUsages
                    typeMap,
                    formatMapService,
                    classificationFormatMapService,
-                   columns.Where(c => c.Metadata.Name == FindUsagesValueUsageInfoColumnDefinition.ColumnName).Select(c => c.Value))
+                   columns.Where(c =>
+                        c.Metadata.Name == FindUsagesValueUsageInfoColumnDefinition.ColumnName
+                        || c.Metadata.Name == ContainingMemberColumnDefinition.ColumnName)
+                        .Select(c => c.Value))
         {
         }
 
@@ -93,7 +97,7 @@ namespace Microsoft.VisualStudio.LanguageServices.FindUsages
             ClassificationFormatMap = classificationFormatMapService.GetClassificationFormatMap("tooltip");
 
             _vsFindAllReferencesService = (IFindAllReferencesService)_serviceProvider.GetService(typeof(SVsFindAllReferences));
-            _customColumns = columns.OfType<AbstractFindUsagesCustomColumnDefinition>().ToImmutableArray();
+            _customColumns = columns.OfType<AbstractCustomColumnDefinition>().ToImmutableArray();
         }
 
         public void ClearAll()
